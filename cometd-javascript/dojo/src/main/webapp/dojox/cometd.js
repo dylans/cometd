@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 the original author or authors.
+ * Copyright (c) 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-dojo.provide('dojox.cometd');
-dojo.registerModulePath('org','../org');
-dojo.require('org.cometd');
-dojo.require('dojo.io.script');
+define(["dojox/cometd", "org/cometd", "dojo/io/script", "dojo/_base/json"],
+function(cometd, org, io, json){
+    // TODO dojo.registerModulePath('org','../org');
 
 // Remap cometd JSON functions to dojo JSON functions
-org.cometd.JSON.toJSON = dojo.toJson;
-org.cometd.JSON.fromJSON = dojo.fromJson;
+    org.JSON.toJSON = json.toJson;
+    org.JSON.fromJSON = json.fromJson;
 
 dojox.Cometd = function(name)
 {
-    var cometd = new org.cometd.Cometd(name);
+    var cometd = new org.Cometd(name);
 
     function LongPollingTransport()
     {
-        var _super = new org.cometd.LongPollingTransport();
-        var that = org.cometd.Transport.derive(_super);
+        var _super = new org.LongPollingTransport();
+        var that = org.Transport.derive(_super);
 
         that.xhrSend = function(packet)
         {
@@ -56,8 +54,8 @@ dojox.Cometd = function(name)
 
     function CallbackPollingTransport()
     {
-        var _super = new org.cometd.CallbackPollingTransport();
-        var that = org.cometd.Transport.derive(_super);
+        var _super = new org.CallbackPollingTransport();
+        var that = org.Transport.derive(_super);
 
         that.jsonpSend = function(packet)
         {
@@ -82,15 +80,16 @@ dojox.Cometd = function(name)
     }
 
     // Registration order is important
-    if (org.cometd.WebSocket)
+    if (org.WebSocket)
     {
-        cometd.registerTransport('websocket', new org.cometd.WebSocketTransport());
+        cometd.registerTransport('websocket', new org.WebSocketTransport());
     }
     cometd.registerTransport('long-polling', new LongPollingTransport());
     cometd.registerTransport('callback-polling', new CallbackPollingTransport());
 
     return cometd;
 };
+}
 
 // The default cometd instance
 dojox.cometd = new dojox.Cometd();
